@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Die 7-Spur</title>
+<style>
+:root{--blue:#1565C0;--green:#43A047;--orange:#F4A100;--bg:#EEF4FC;--ink:#1B2A3A}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html,body{height:100%;background:var(--bg);font-family:ui-rounded,"SF Pro Rounded",system-ui,sans-serif;color:var(--ink);overflow:hidden;touch-action:none}
+body{background:radial-gradient(circle at 20% 10%,#fff 0,transparent 40%),radial-gradient(circle at 90% 90%,#E3F2FD 0,transparent 45%),var(--bg)}
+header{display:flex;align-items:center;justify-content:space-between;padding:2.2vh 3vw}
+.badge{width:7vh;height:7vh;border-radius:50%;background:var(--blue);display:grid;place-items:center;box-shadow:0 .6vh 0 #0D47A1}
+.badge svg{height:4.4vh}
+.steps{display:flex;gap:1.4vh}
+.steps i{width:3.4vh;height:3.4vh;border-radius:50%;background:#fff;border:.4vh solid #BBD3F0;transition:.3s}
+.steps i.on{background:var(--orange);border-color:var(--orange);transform:scale(1.15)}
+.steps i.done{background:var(--green);border-color:var(--green)}
+.home{font-size:5vh;background:none;border:none}#steps{font-size:4.6vh;font-weight:800;color:#F4A100}#menu{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:4vw}#menu{padding:0 3vw;gap:2.5vw}#menu button{background:#fff;border:none;border-radius:4vh;width:16vw;height:42vh;box-shadow:0 2vh 4vh rgba(21,101,192,.18);font-size:11vh;transition:.2s}#kae,#rau{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:3vh}.dots{display:flex;gap:1.2vh}.dots i{width:4vh;height:4vh;border-radius:50%;border:.5vh solid #1B2A3A;background:#fff}.dots i.f{background:#1B2A3A}.row{display:flex;gap:1.5vw;align-items:center}.row b{width:11vh;height:11vh;border-radius:50%;background:#C8E6C9;border:.6vh solid #43A047;display:grid;place-items:center;font-size:7vh}.row b.q{background:#FFF3E0;border-color:#F4A100}.row button{width:16vh;height:20vh;border:none;border-radius:3vh;background:#fff;box-shadow:0 1vh 2vh rgba(21,101,192,.15);font-size:12vh;font-weight:800;color:#1B2A3A}.row button.wrong{animation:shake .4s}#menu button:active{transform:scale(.95)}#det{position:absolute;inset:0;display:none;grid-template-columns:repeat(6,1fr);gap:1.6vh;padding:2vh 16vw 2vh 4vw}#det button{background:#fff;border:none;border-radius:2.4vh;box-shadow:0 1vh 2vh rgba(21,101,192,.12);transition:.2s}#det button.right{box-shadow:0 0 0 .8vh var(--green);opacity:.55}#det button.wrong{animation:shake .4s}
+main{height:80vh;display:grid;place-items:center;position:relative}
+#stage{height:76vh;max-width:94vw;background:#fff;border-radius:4vh;box-shadow:0 2vh 5vh rgba(21,101,192,.15);touch-action:none}
+.crit{position:absolute;right:4vw;top:6vh;display:flex;flex-direction:column;gap:2vh}
+.crit div{width:11vh;height:11vh;border-radius:2.5vh;background:#fff;box-shadow:0 1vh 2vh rgba(0,0,0,.08);display:grid;place-items:center;opacity:.35;transition:.4s}
+.crit div.ok{opacity:1;transform:scale(1.08);box-shadow:0 0 0 .6vh var(--green),0 1vh 2vh rgba(0,0,0,.08)}
+.crit svg{width:8vh;height:8vh}
+#quiz{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:4vw}
+#quiz button{background:#fff;border:none;border-radius:4vh;width:24vw;height:46vh;box-shadow:0 2vh 4vh rgba(21,101,192,.15);transition:.25s}
+#quiz button:active{transform:scale(.96)}
+#quiz button.right{box-shadow:0 0 0 1.2vh var(--green);transform:scale(1.05)}
+#quiz button.wrong{animation:shake .4s}
+#win{position:fixed;inset:0;display:none;place-items:center;background:rgba(238,244,252,.85);backdrop-filter:blur(4px)}
+#win .card{background:#fff;border-radius:5vh;padding:5vh 7vw;text-align:center;box-shadow:0 3vh 6vh rgba(0,0,0,.15)}
+#win .stars{font-size:11vh;letter-spacing:2vw}
+#win button{margin-top:3vh;font-size:7vh;background:var(--green);color:#fff;border:none;border-radius:50%;width:14vh;height:14vh;box-shadow:0 .8vh 0 #2E7D32}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-2vw)}75%{transform:translateX(2vw)}}
+@keyframes pulse{0%,100%{r:13}50%{r:19}}
+.pulse{animation:pulse 1.2s infinite}
+.conf{position:fixed;width:1.6vh;height:2.4vh;top:-3vh;border-radius:.3vh;animation:fall linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+</style></head><body>
+<header>
+  <div class="badge"><svg viewBox="-.1 -.1 .9 1.2"><path d="M0.05 0 L0.7 0 L0.25 1 M0.3 0.5 L0.65 0.5" fill="none" stroke="#fff" stroke-width=".15" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="steps" id="steps"></div>
+  <button class="home" onclick="menu()" aria-label="Menü">🏠</button>
+</header>
+<main>
+  <svg id="stage" viewBox="0 0 300 400"></svg>
+  <div class="crit"><div id="c1"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="11" fill="#43A047"/></svg></div>
+    <div id="c2"><svg viewBox="0 0 40 40"><rect x="5" y="16" width="30" height="8" rx="4" fill="#F4A100"/></svg></div></div>
+  <div id="quiz"></div><div id="menu"></div><div id="det"></div><div id="kae"></div><div id="rau"></div>
+</main>
+<div id="win"><div class="card"><div class="stars">⭐⭐⭐</div><button onclick="next()">▶</button></div></div>
+<script>
+const NS='http://www.w3.org/2000/svg', st=document.getElementById('stage');
+const S=[[[55,60],[245,60],[115,345]],[[130,200],[230,200]]];  // Strich 1 (gerade, runter) und Querstrich
+let lvl=0, stroke=0, idx=0, pts=[], drawing=false, ink=null;
+const say=t=>{try{const u=new SpeechSynthesisUtterance(t);u.lang='de-DE';u.rate=.95;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}};
+const el=(n,a,p=st)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+function sample(poly){const out=[];for(let i=0;i<poly.length-1;i++){const[a,b]=[poly[i],poly[i+1]],d=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.ceil(d/10);for(let k=0;k<n;k++)out.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n])}out.push(poly[poly.length-1]);return out}
+const path=p=>'M'+p.map(q=>q.join(' ')).join(' L');
+let game=0, stars=0, round=0;
+function steps(){document.getElementById('steps').textContent='⭐ '+stars}
+function hide(){['quiz','menu','det','kae','rau'].forEach(i=>document.getElementById(i).style.display='none');st.style.display='none';document.getElementById('win').style.display='none';
+  ['c1','c2'].forEach(c=>document.getElementById(c).classList.remove('ok'));document.querySelector('.crit').style.display='none'}
+function menu(){hide();const m=document.getElementById('menu');m.style.display='flex';m.innerHTML='';
+  [[1,seven('ok',1)],[4,'🐞'],[5,'🐛'],[2,'<div style="display:flex;height:60%;align-items:center;padding:0 1vw">'+seven('ok')+seven('spiegel')+seven('ohne')+'</div>'],[3,'🔍']].forEach(([g,h])=>{
+    const b=document.createElement('button');b.innerHTML=h;b.onclick=()=>{game=g;round=0;play()};m.appendChild(b)});say('Such dir ein Spiel aus!')}
+function play(){hide();steps();lvl=game==1?Math.min(round,2):3;game==1?trace():game==2?quiz():game==3?detektiv():game==4?kaefer():raupe()}
+function start(l){game=1;round=l;play()}
+function trace(){
+  st.style.display='';document.querySelector('.crit').style.display='flex';st.innerHTML='';stroke=0;
+  ['c1','c2'].forEach(c=>document.getElementById(c).classList.remove('ok'));
+  // Hilfslinien
+  el('line',{x1:20,y1:60,x2:280,y2:60,stroke:'#BBD3F0','stroke-width':2});el('line',{x1:20,y1:345,x2:280,y2:345,stroke:'#BBD3F0','stroke-width':2});
+  const guide=[{w:46,c:'#E3F2FD'},{w:30,c:'#EEF4FC'},{w:0}][lvl];ink=null;
+  S.forEach(p=>{if(guide.w)el('path',{d:path(p),stroke:guide.c,'stroke-width':guide.w,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'});
+    if(lvl<2)el('path',{d:path(p),stroke:'#90A4BE','stroke-width':4,fill:'none','stroke-dasharray':'1 13','stroke-linecap':'round'})});
+  if(lvl==0){ // Pfeile
+    [[150,40,'→'],[200,215,'↙'],[180,182,'→']].forEach(([x,y,t])=>{const e=el('text',{x,y,'font-size':26,fill:'#F4A100','text-anchor':'middle','font-weight':800});e.textContent=t});}
+  ink=el('g',{});begin();
+}
+function begin(){
+  pts=sample(S[stroke]);idx=0;
+  const[sx,sy]=S[stroke][0];
+  st.querySelectorAll('.start').forEach(e=>e.remove());
+  el('circle',{cx:sx,cy:sy,r:13,fill:stroke?'#F4A100':'#43A047',class:'start pulse'});
+  if(stroke==1){const a=el('path',{d:'M115 345 Q60 250 125 205',stroke:'#F4A100','stroke-width':3,fill:'none','stroke-dasharray':'3 9',class:'start'});}
+  say(stroke?'Luftsprung! Jetzt der Querstrich.':(lvl==0?'Fahre die Sieben nach. Starte am grünen Punkt.':'Starte am grünen Punkt.'));
+}
+function pos(e){const r=st.getBoundingClientRect(),k=300/r.width;return[(e.clientX-r.left)*k,(e.clientY-r.top)*(400/r.height)]}
+st.addEventListener('pointerdown',e=>{if(lvl>2)return;const p=pos(e),s=S[stroke][0];
+  if(Math.hypot(p[0]-s[0],p[1]-s[1])>34){const d=st.querySelector('circle.start');d&&d.animate([{r:13},{r:26},{r:13}],{duration:500});say('Startpunkt!');return}
+  drawing=true;idx=0;ink.querySelectorAll('.cur').forEach(x=>x.remove());
+  ink._p=el('polyline',{points:'',stroke:COL[1+round%5],'stroke-width':16,fill:'none','stroke-linecap':'round','stroke-linejoin':'round',class:'cur'},ink);ink._a=[]});
+st.addEventListener('pointermove',e=>{if(!drawing)return;const p=pos(e);
+  const near=(i)=>i<pts.length&&Math.hypot(p[0]-pts[i][0],p[1]-pts[i][1])<30;
+  if(Math.hypot(p[0]-pts[Math.min(idx,pts.length-1)][0],p[1]-pts[Math.min(idx,pts.length-1)][1])>55){fail();return}
+  while(near(idx))idx++;ink._a.push(p.map(v=>v.toFixed(1)).join(','));ink._p.setAttribute('points',ink._a.join(' '));
+  if(idx>=pts.length)done()});
+st.addEventListener('pointerup',()=>{if(drawing){drawing=false;if(idx<pts.length)fail()}});
+function fail(){drawing=false;ink.querySelectorAll('.cur').forEach(x=>x.animate([{opacity:1},{opacity:0}],{duration:400}).onfinish=()=>x.remove());say('Nochmal!')}
+function done(){drawing=false;ink._p.classList.remove('cur');ink._p.setAttribute('points',path(S[stroke]).slice(1).replace(/ L/g,' '));
+  if(stroke==0){document.getElementById('c1').classList.add('ok');stroke=1;begin()}
+  else{document.getElementById('c2').classList.add('ok');st.querySelectorAll('.start').forEach(e=>e.remove());win()}}
+const LOB=['Super!','Klasse!','Spitze!','Toll gemacht!','Wow!'];
+function win(t){stars++;steps();say(t||LOB[stars%5]+' Startpunkt und Querstrich!');confetti();setTimeout(()=>document.getElementById('win').style.display='grid',1100)}
+function next(){round++;play()}
+const COL=['#1B2A3A','#1565C0','#E53935','#2E7D32','#6A1B9A','#EF6C00'];
+function seven(t,dot,col='#1B2A3A'){ // t: ok | spiegel | ohne | eins
+  const m=t=='spiegel'?'transform="translate(300 0) scale(-1 1)"':'';
+  if(t=='eins')return `<svg viewBox="0 0 300 400" width="100%" height="100%"><path d="M95 130 L185 60 L185 345" stroke="${col}" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  return `<svg viewBox="0 0 300 400" width="100%" height="100%"><g ${m}><path d="${path(S[0])}" stroke="${col}" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>${t!='ohne'?`<path d="${path(S[1])}" stroke="${col}" stroke-width="20" stroke-linecap="round"/>`:''}${dot?'<circle cx="55" cy="60" r="22" fill="#43A047"/>':''}</g></svg>`}
+function quiz(){const q=document.getElementById('quiz');q.style.display='flex';q.innerHTML='';const col=COL[round%6];
+  ['c1','c2'].forEach(c=>document.getElementById(c).classList.add('ok'));
+  ['ok',...['ohne','spiegel','eins'].sort(()=>Math.random()-.5).slice(0,round>3?3:2)].sort(()=>Math.random()-.5).forEach(t=>{const b=document.createElement('button');b.style.width=round>3?'19vw':'24vw';b.innerHTML=seven(t,0,col);
+    b.onclick=()=>{if(t=='ok'){b.classList.add('right');win('Richtig! Das ist eine schöne Sieben.')}
+      else{b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');say(t=='ohne'?'Da fehlt der Querstrich!':t=='eins'?'Das ist eine Eins!':'Die ist verkehrt herum!')}};q.appendChild(b)});
+  say('Welche Sieben ist richtig?')}
+function detektiv(){const d=document.getElementById('det');d.style.display='grid';d.innerHTML='';
+  const n=3+Math.floor(Math.random()*3);let left=n;
+  const all=[...Array(n).fill('ok'),...Array(18-n).fill(0).map(()=>['eins','spiegel','ohne','eins'][Math.floor(Math.random()*4)])].sort(()=>Math.random()-.5);
+  all.forEach(t=>{const b=document.createElement('button');b.innerHTML=seven(t,0,COL[Math.floor(Math.random()*6)]);b.style.transform=`rotate(${(Math.random()*16-8).toFixed(0)}deg)`;
+    b.onclick=()=>{if(b.classList.contains('right'))return;if(t=='ok'){b.classList.add('right');if(--left==0)win('Alle Siebenen gefunden!');else say(['Gefunden!','Noch mehr!','Ja!'][left%3])}
+      else{b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');say(t=='ohne'?'Da fehlt der Querstrich!':t=='eins'?'Das ist eine Eins!':'Die ist verkehrt herum!')}};d.appendChild(b)});
+  say('Finde alle richtigen Siebenen!')}
+function kaefer(){const k=document.getElementById('kae');k.style.display='flex';k.innerHTML='';
+  const v=document.createElementNS(NS,'svg');v.setAttribute('viewBox','0 0 400 360');v.style.height='62vh';k.appendChild(v);
+  v.innerHTML='<line x1="180" y1="30" x2="160" y2="5" stroke="#1B2A3A" stroke-width="6"/><line x1="220" y1="30" x2="240" y2="5" stroke="#1B2A3A" stroke-width="6"/><circle cx="200" cy="70" r="52" fill="#1B2A3A"/><circle cx="180" cy="58" r="9" fill="#fff"/><circle cx="220" cy="58" r="9" fill="#fff"/><ellipse cx="200" cy="205" rx="160" ry="140" fill="#E53935" stroke="#B71C1C" stroke-width="6"/><line x1="200" y1="66" x2="200" y2="345" stroke="#1B2A3A" stroke-width="6"/>';
+  const bar=document.createElement('div');bar.className='dots';k.appendChild(bar);const D=[];
+  const upd=()=>{bar.innerHTML=Array.from({length:7},(_,i)=>`<i class="${i<D.length?'f':''}"></i>`).join('')};
+  const add=(x,y)=>{const c=el('circle',{cx:x,cy:y,r:17,fill:'#1B2A3A'},v);D.push(c);c.onpointerdown=ev=>{ev.stopPropagation();if(D.length<7){c.remove();D.splice(D.indexOf(c),1);upd()}}};
+  const pre=round%3==0?0:Math.floor(Math.random()*5)+1;for(let i=0;i<pre;i++){const L=i%2==0||round%2;add(L?110+Math.random()*60:230+Math.random()*60,150+Math.random()*130)}
+  upd();say(pre?'Male Punkte dazu, bis es sieben sind.':'Male dem Marienkäfer sieben Punkte.');
+  v.onpointerdown=e=>{if(D.length>=7)return;const r=v.getBoundingClientRect(),x=(e.clientX-r.left)*400/r.width,y=(e.clientY-r.top)*360/r.height;
+    if(((x-200)/150)**2+((y-205)/130)**2>1||Math.abs(x-200)<16){say('Auf die Flügel!');return}
+    add(x,y);upd();say(String(D.length));
+    if(D.length==7){const l=D.filter(c=>+c.getAttribute('cx')<200).length;setTimeout(()=>win(`${l} und ${7-l} sind 7!`),700)}}}
+function raupe(){const r=document.getElementById('rau');r.style.display='flex';r.innerHTML='';
+  const h=round%4==0?7:2+Math.floor(Math.random()*6),z=n=>n==7?`<svg viewBox="-.15 -.12 1 1.24" style="height:.78em;overflow:visible"><path d="M0.05 0 L0.7 0 L0.25 1 M0.3 0.5 L0.65 0.5" fill="none" stroke="currentColor" stroke-width=".13" stroke-linecap="round" stroke-linejoin="round"/></svg>`:n;
+  const row=document.createElement('div');row.className='row';row.innerHTML='<b style="background:#43A047">😊</b>'+[1,2,3,4,5,6,7].map(n=>n==h?'<b class="q">?</b>':`<b>${z(n)}</b>`).join('');r.appendChild(row);
+  const opt=document.createElement('div');opt.className='row';r.appendChild(opt);
+  [h,h==7?1:h+1,h-1].sort(()=>Math.random()-.5).forEach(n=>{const b=document.createElement('button');b.innerHTML=z(n);
+    b.onclick=()=>{if(n==h){row.querySelector('.q').outerHTML=`<b style="background:#FFE0B2">${z(n)}</b>`;win(h==7?'Richtig! Nach der 6 kommt die 7.':'Richtig!')}else{b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');say('Zähl nochmal!')}};opt.appendChild(b)});
+  say('Welche Zahl fehlt?')}
+function confetti(){const c=['#1565C0','#43A047','#F4A100','#E53935','#FFC93C'];for(let i=0;i<60;i++){const d=document.createElement('div');d.className='conf';d.style.left=Math.random()*100+'vw';d.style.background=c[i%5];d.style.animationDuration=1.5+Math.random()*1.5+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),3200)}}
+menu();
+</script></body></html>
